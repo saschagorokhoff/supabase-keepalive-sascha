@@ -5,22 +5,22 @@
  * Pings all Sascha-side Supabase projects every 5 days via cron.
  *
  * Projects covered:
- *   - CRM / GNS        (mverztarzypogdyugtei) — created June 4 2026
+ *   - Sascha Leadership (qfmmmbwvuvewafwwdifr) — saschagorokhoff.com ecosystem
  *
  * ADD MORE: duplicate the object in PROJECTS array as new Supabase projects are created.
  *
  * Secrets required (Cloudflare dashboard → Workers → supabase-keepalive-sascha → Settings → Variables):
- *   SUPABASE_KEY_CRM   → SECRET key (sb_secret_...) for mverztarzypogdyugtei
- *                        Get it from: Supabase → Project Settings → API Keys → Secret key
- *                        ⚠️ NOT the publishable key — that will 401 on server endpoints
- *                        ⚠️ Add via Cloudflare dashboard only, never via CLI (Windows paste truncates)
+ *   SUPABASE_KEY_SASCHA_LEADERSHIP → SECRET key (sb_secret_...) for qfmmmbwvuvewafwwdifr
+ *                                    Get it from: Supabase → Project Settings → API Keys → Secret key
+ *                                    ⚠️ NOT the publishable key — that will 401 on server endpoints
+ *                                    ⚠️ Add via Cloudflare dashboard only, never via CLI (Windows paste truncates)
  */
 
 const PROJECTS = [
   {
-    name: "CRM / GNS (mverztarzypogdyugtei)",
-    url: "https://mverztarzypogdyugtei.supabase.co/rest/v1/",
-    secretEnvKey: "SUPABASE_KEY_CRM",
+    name: "Sascha Leadership (qfmmmbwvuvewafwwdifr)",
+    url: "https://qfmmmbwvuvewafwwdifr.supabase.co/rest/v1/",
+    secretEnvKey: "SUPABASE_KEY_SASCHA_LEADERSHIP",
   },
   // Add future Sascha-side projects here:
   // {
@@ -88,9 +88,9 @@ export default {
 
     if (url.pathname === "/debug") {
       return new Response(JSON.stringify({
-        SUPABASE_KEY_CRM_present: !!env.SUPABASE_KEY_CRM,
-        SUPABASE_KEY_CRM_length: env.SUPABASE_KEY_CRM?.length ?? 0,
-        SUPABASE_KEY_CRM_preview: env.SUPABASE_KEY_CRM?.substring(0, 10) ?? "MISSING",
+        SUPABASE_KEY_SASCHA_LEADERSHIP_present: !!env.SUPABASE_KEY_SASCHA_LEADERSHIP,
+        SUPABASE_KEY_SASCHA_LEADERSHIP_length: env.SUPABASE_KEY_SASCHA_LEADERSHIP?.length ?? 0,
+        SUPABASE_KEY_SASCHA_LEADERSHIP_preview: env.SUPABASE_KEY_SASCHA_LEADERSHIP?.substring(0, 10) ?? "MISSING",
       }, null, 2), { headers: { "Content-Type": "application/json" } });
     }
 
