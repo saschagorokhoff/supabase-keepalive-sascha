@@ -9,8 +9,11 @@
  *
  * ADD MORE: duplicate the object in PROJECTS array as new Supabase projects are created.
  *
- * Secrets required (Cloudflare dashboard → Workers → keepalive-sascha → Settings → Variables):
- *   SUPABASE_KEY_CRM   → anon/service_role key for mverztarzypogdyugtei
+ * Secrets required (Cloudflare dashboard → Workers → supabase-keepalive-sascha → Settings → Variables):
+ *   SUPABASE_KEY_CRM   → SECRET key (sb_secret_...) for mverztarzypogdyugtei
+ *                        Get it from: Supabase → Project Settings → API Keys → Secret key
+ *                        ⚠️ NOT the publishable key — that will 401 on server endpoints
+ *                        ⚠️ Add via Cloudflare dashboard only, never via CLI (Windows paste truncates)
  */
 
 const PROJECTS = [
@@ -38,9 +41,9 @@ async function pingProject(project, env) {
     const res = await fetch(project.url, {
       method: "GET",
       headers: {
-        apikey: apiKey,
-        Authorization: `Bearer ${apiKey}`,
+        apikey: apiKey,           // sb_secret_... in apikey header ONLY
         "Content-Type": "application/json",
+        // ⚠️ No Authorization header — new sb_ keys must NOT go in Bearer
       },
     });
 
@@ -48,6 +51,7 @@ async function pingProject(project, env) {
       name: project.name,
       status: res.ok ? "OK" : "ERROR",
       httpStatus: res.status,
+      body: res.ok ? undefined : await res.text(),
     };
   } catch (err) {
     return { name: project.name, status: "FAILED", error: err.message };
@@ -55,6 +59,7 @@ async function pingProject(project, env) {
 }
 
 export default {
+  // Cron trigger: runs every 5 days at 08:00 UTC
   async scheduled(event, env, ctx) {
     const results = await Promise.all(
       PROJECTS.map((p) => pingProject(p, env))
@@ -81,10 +86,21 @@ export default {
       });
     }
 
+    if (url.pathname === "/debug") {
+      return new Response(JSON.stringify({
+        SUPABASE_KEY_CRM_present: !!env.SUPABASE_KEY_CRM,
+        SUPABASE_KEY_CRM_length: env.SUPABASE_KEY_CRM?.length ?? 0,
+        SUPABASE_KEY_CRM_preview: env.SUPABASE_KEY_CRM?.substring(0, 10) ?? "MISSING",
+      }, null, 2), { headers: { "Content-Type": "application/json" } });
+    }
+
     return new Response(
       JSON.stringify({
         worker: "supabase-keepalive-sascha",
-        routes: { "/ping": "Manually trigger keepalive for all projects" },
+        routes: {
+          "/ping": "Manually trigger keepalive for all projects",
+          "/debug": "Check if secrets are loaded correctly",
+        },
       }),
       { headers: { "Content-Type": "application/json" } }
     );
