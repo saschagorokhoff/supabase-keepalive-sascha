@@ -1,0 +1,8 @@
+name = "supabase-keepalive-sascha"
+main = "worker.js"
+compatibility_date = "2024-01-01"
+account_id = "2ba539a953b707dc3ca4ff32b1addd25"
+
+[triggers]
+crons = ["0 8 */5 * *"]
+# Runs at 08:00 UTC every 5 days
